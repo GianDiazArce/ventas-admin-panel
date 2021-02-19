@@ -14,6 +14,27 @@ body{
     /* Borrar */
     background-color: #333;
 }
+.table-width-auto{
+    width: auto !important;
+    /* width: 70% !important; */
+}
+.cursor-pointer{
+    cursor: pointer;
+}
+.btnAddItem{
+    padding-top: 18px;
+}
+input[type=number] {
+    -moz-appearance: textfield;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* .selectSemantic > div{
+    height: auto !important;
+} */
 
 
 

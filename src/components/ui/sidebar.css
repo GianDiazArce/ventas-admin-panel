@@ -1,0 +1,22 @@
+.menu{
+    height: 100vh !important;
+    border: none;
+}
+
+.columnMenu1{
+    padding-bottom: 0 !important;
+    
+}
+.columnContainer1{
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+.ui.segment {
+    border:0px solid rgba(34,36,38,.15) !important;
+}
+.btnLogout{
+    margin: auto 0 auto auto;
+    right: 100px;
+
+    margin-right: 200px;
+}

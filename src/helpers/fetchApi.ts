@@ -1,19 +1,85 @@
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import Swal from 'sweetalert2';
 
+const baseUrl = process.env.REACT_APP_API_URL;
 
-export const fetchSinToken = async(url:string = 'http://localhost:4000/api', method:string = 'GET') => {
+export const fetchSinToken = async(endPoint: string, data:any = {} ,method:string = 'GET') => {
+    const url = `${baseUrl}/${endPoint}`;
     if(method === 'GET'){
-        const response = await axios.get(url + '/categories');
-        return response.data;
+        const response = await axios.get(url).then((response:AxiosResponse) => response.data).catch( (error: AxiosError) => Swal.fire('Error', error.message,'error'));
+        return response;
+
+    } else if(method === 'POST'){
+        // console.log('holi')
+        const resp = await axios.post(url, data, {
+            headers: {
+                'Content-type': 'application/json'
+            },
+        }).then((response:AxiosResponse) => response.data).catch( (error: AxiosError) => Swal.fire('Error', error.response?.data.msg,'error'));
+        return resp;
     }
 }
 
 
-export const fetchConToken = async(url: string, method:string = 'GET', token: string) => {
-
+export const fetchConToken = async(endPoint: string, data:any = {}, method:string = 'GET') => {
+    const url = `${baseUrl}/${endPoint}`;
+    const token = localStorage.getItem('token') || '';
     if(method === 'GET'){
-        const response = axios.get(url);
-        return response;
+        try{
+            const response = await axios.get(url,{
+                headers: {
+                    'x-token': token
+                }
+            });
+            return response.data;
+        } catch(e) {
+            // console.log(e)
+            return {
+                    ok: false
+            }
+        }
+    } else if (method === 'POST'){
+        try {
+            const response = await axios.post(url,data,{
+                headers: {
+                    'Content-type': 'application/json',
+                    'x-token': token
+                }
+            })
+            return response.data;
+        } catch (error) {
+            return {
+                ok: false
+            }
+        }
+    } else if (method === 'PUT'){
+        try {
+            const response = await axios.put(url, data, {
+                headers: {
+                    'Content-type': 'application/json',
+                    'x-token': token
+                }
+            })
+            return response.data;
+        } catch (error) {
+            return {
+                ok: false
+            }
+        }
+    } else if (method === 'DELETE'){
+        try {
+            const response = await axios.delete(url, {
+                headers: {
+                    'Content-type': 'application/json',
+                    'x-token': token
+                }
+            })
+            return response.data;
+        } catch (error) {
+            return {
+                ok: false,
+            }
+        }
     }
 
 }

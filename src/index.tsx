@@ -4,8 +4,8 @@ import { SalesApp } from './SalesApp';
 import './styles.css';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <SalesApp />
-  </React.StrictMode>,
+  // <React.StrictMode>
+    <SalesApp />,
+  // </React.StrictMode>,
   document.getElementById('root')
 );

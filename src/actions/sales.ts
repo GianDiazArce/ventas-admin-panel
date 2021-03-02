@@ -1,4 +1,4 @@
-import { fetchConToken } from '../helpers/fetchApi';
+import { fetchConToken, fetchSinToken } from '../helpers/fetchApi';
 import Swal from 'sweetalert2';
 import { ISales, IDetailSales } from '../reducers/salesReducer';
 import { types } from '../types/types';
@@ -20,6 +20,22 @@ export const startGetAllSales = () => {
 const getAllSales = (sales: ISales) => ({
     type: types.salesGetAll,
     payload: sales,
+})
+
+export const startGetActiveSale = (saleId: string) => {
+    return async (dispatch:any) => {
+        const resp = await fetchSinToken(`sales/${saleId}`, null, 'GET');
+        if(!resp){
+            Swal.fire('Error', 'Hubo un error con la informacion del servidor, por favor contacte con un administrador', 'error');
+        }
+        if(resp.ok){
+            dispatch(getSaleById(resp.sale));
+        }
+    }
+}
+const getSaleById = (sale: ISales) => ({
+    type: types.saleGetById,
+    payload: sale
 })
 
 export const startGetDetailsSalesById = (saleId: string) => {
@@ -127,7 +143,17 @@ export const startNewSale = (shopCart: IDetailSaleFetch[], total: any, userId: s
                         price_sale: shopCart[i].price_sale,
                     }, 'POST');
                 if(!respDetailSale){
-                    Swal.fire('Error', 'Hubo un error con la informacion del servidor, por favor contacte con un administrador', 'error');
+                    Swal.fire('Error', 'Hubo un error con la peticion detail sale del servidor, por favor contacte con un administrador', 'error');
+                }
+                const updateStockResp = await fetchConToken(
+                    `products/stock/${shopCart[i]._id}`,
+                    {
+                        stock: shopCart[i].quantity,
+                    },
+                    'POST'
+                );
+                if(!updateStockResp){
+                    Swal.fire('Error', 'Hubo un error con la peticion update stock del servidor, por favor contacte con un administrador', 'error');
                 }
             }
             dispatch(salesClearShopCart());
@@ -167,3 +193,36 @@ const deleteSaleById = (id: string) => ({
     type: types.saleDelete,
     payload: id,
 })
+
+export const startSaleChangeStatus = (status: string, saleId: string) => {
+    return async (dispatch:any) => {
+        const resp = await fetchConToken(`sales/${saleId}`, {status}, 'PUT');
+        // console.log(resp)
+        if(!resp){
+            Swal.fire('Error', 'Hubo un error con la informacion del servidor, por favor contacte con un administrador', 'error');
+        }
+        if(resp.ok){
+            dispatch(saleChangeStatus(resp.sale));
+            Swal.fire('Success', 'El estado fue cambiado correctamente', 'success');
+        }
+    }
+}
+
+const saleChangeStatus = (sale: ISales) => ({
+    type: types.saleChangeStatus,
+    payload: sale,
+})
+
+export const returnStockProduct = (detailsSale: IDetailSales[]) => {
+    return async (dispatch:any) => {
+        for (let i = 0; i < detailsSale.length; i++) {
+            const resp = await fetchConToken(`products/devolver-stock/${detailsSale[i].product._id}`, {
+                stock: detailsSale[i].quantity
+            }, 'POST');
+            if(!resp){
+                Swal.fire('Error', 'Hubo un error con la informacion del servidor, por favor contacte con un administrador', 'error');
+            }
+            
+        }
+    }
+}

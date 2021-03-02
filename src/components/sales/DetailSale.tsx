@@ -1,44 +1,169 @@
 import React from 'react'
-import { Button, Table } from 'semantic-ui-react';
-import { useHistory, useLocation } from 'react-router-dom';
-import { ISales, IDetailSales } from '../../reducers/salesReducer';
-import { useEffect } from 'react';
+import { Button, Grid, Input, Table, Icon, List, Label, Popup, Header, Modal } from 'semantic-ui-react';
+import { useHistory, useParams } from 'react-router-dom';
+import { IDetailSales } from '../../reducers/salesReducer';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector, RootStateOrAny } from 'react-redux';
-import { startGetDetailsSalesById } from '../../actions/sales';
+import { startGetActiveSale, startGetDetailsSalesById, startSaleChangeStatus, returnStockProduct } from '../../actions/sales';
+import { translateStatusSale } from '../../helpers/translateStatusSale';
 
-interface IDetailSaleProps{
-    sale: ISales
-}
+// interface IDetailSaleProps{
+//     sale: ISales
+// }
 
 export const DetailSale = () => {
 
     let history = useHistory()
-    const dispatch = useDispatch()
-    const location = useLocation();
-    const sale = (location.state as IDetailSaleProps).sale;
-    const { detailsSales } = useSelector((state:RootStateOrAny) => state.sal);
+    const dispatch = useDispatch();
+    const { detailsSales, activeSale } = useSelector((state:RootStateOrAny) => state.sal);
+    const [open, setOpen] = useState(false);
+    let { id:saleIdActive }:any = useParams();
     
     useEffect(() => {
         
-        dispatch(startGetDetailsSalesById(sale._id));
+        dispatch(startGetActiveSale(saleIdActive))
+        dispatch(startGetDetailsSalesById(saleIdActive));
+    }, [dispatch, saleIdActive])
 
-    }, [dispatch, sale._id])
+    const handleSaleStatusChange = (status: string, saleId: string) => {
+
+        if (status === 'cancel'){
+            setOpen(true);
+        } else if (status === 'pending'){
+            dispatch( startSaleChangeStatus(status, saleId) )
+        } else if (status === 'success'){
+            dispatch( startSaleChangeStatus(status, saleId) )
+        } else {
+            console.log('Error')
+        }
+    }
+    const handleCancelSale = (status: string, saleId: string, details: IDetailSales[]) => {
+        dispatch(returnStockProduct(details))
+        dispatch( startSaleChangeStatus(status, saleId) );
+        setOpen(false);
+    }
+
     return (
         <div>
-            <Button onClick={()=>{history.goBack()}}>Volver</Button>
+            <br/>
+            <Button icon onClick={()=>{history.goBack()}}><Icon name="arrow left" />  Volver</Button>
             <br/>
             <br/>
+            <Label basic color="blue" >Explicacion de estado de pedido:</Label>
+            <List divided selection >
+                <List.Item>
+                    <Label color="red" horizontal>Cancelado</Label>
+                    Pedido cancelado
+                </List.Item>
+                <List.Item>
+                    <Label color="yellow" horizontal>Pendiente</Label>
+                    El pedido se encuentra reservado, pero aun no se verifica el pago o no fue enviado.
+                </List.Item>
+                <List.Item>
+                    <Label color="green" horizontal>Completado</Label>
+                    El pedido fue enviado y el pago fue verificado correctamente
+                </List.Item>
+            </List>
             <br/>
-            <label>Lugar de envio:</label>
-            <input type="text" readOnly value={sale.place}/>
-            <label>Precio Total:</label>
-            <input type="text" readOnly value={sale.total_price}/>
+
+            <Modal
+                basic
+                onClose={() => setOpen(false)}
+                onOpen={() => setOpen(true)}
+                open={open}
+                size='small'
+                // trigger={<Button>Basic Modal</Button>}
+            >
+                <Header icon>
+                    <Icon name='archive' />
+                    ¿Seguro de cancelar la venta?
+                </Header>
+                <Modal.Content>
+                    <p>
+                    Al cancelar la venta se devolvera el stock y ya no podrá cambiar el estado del producto nuevamente.
+                    </p>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button basic color='red' inverted onClick={() => setOpen(false)}>
+                        <Icon name='remove' /> No
+                    </Button>
+                    <Button color='green' inverted onClick={() => {
+                        handleCancelSale('cancel', activeSale._id, detailsSales);
+                    }}>
+                        <Icon name='checkmark' /> Eliminar
+                    </Button>
+                </Modal.Actions>
+            </Modal>
+
+
+            <hr/><br/><br/>
+            {
+                !activeSale ? '' :
+                <Grid columns="2" divided padded="horizontally">
+                <Grid.Row>
+                    <Grid.Column width={7}>
+                        <label>Lugar de envio: </label>
+                        <Input type="text" readOnly value={activeSale.place}/>
+                    </Grid.Column>
+                    <Grid.Column width={7}>
+                        <label>Precio Total: </label>
+                        <Input type="text" readOnly value={'S/'+activeSale.total_price.toFixed(2)}/>
+                    </Grid.Column>
+                </Grid.Row>
+                <Grid.Row>
+                    <Grid.Column  width={7}>
+                        <label>Estado: </label>
+                        <Input type="text" className="mr-3"  readOnly value={translateStatusSale(activeSale.status)}/> 
+
+                        
+                        {
+                            activeSale.status === 'success' || activeSale.status === 'cancel' ? null : 
+                            <Popup 
+                                content="Pedido Completado"
+                                trigger={
+                                    <Button onClick={()=>{handleSaleStatusChange('success', activeSale._id)}} color="green" icon compact >
+                                        <Icon name="check"/>
+                                    </Button> 
+                                }
+                            />
+                        }
+                        {
+                            activeSale.status === 'cancel' ? null : 
+                            <Popup 
+                                content="Cancelar Pedido"
+                                trigger={
+                                    <Button onClick={()=>{handleSaleStatusChange('cancel', activeSale._id)}} icon color="red" compact >
+                                        <Icon name="cancel"/>
+                                    </Button>
+                                }
+                            />
+                        }
+                        {
+                            activeSale.status === 'pending' || activeSale.status === 'cancel' ?
+                            null
+                            : 
+                            <Popup 
+                                content="Pedido pendiente"
+                                trigger={
+                                    <Button onClick={()=>{handleSaleStatusChange('pending', activeSale._id)}} icon color="yellow" compact >
+                                        <Icon name="warning circle"/>
+                                    </Button>
+                                }
+                            />
+                        }
+                    </Grid.Column>
+                    <Grid.Column  width={7}>
+                        <label>Usuario: </label>
+                        <Input type="text" readOnly value={activeSale.user.name}/>
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>}
+            <br/>
+            
+{/*             
             <label>Descuento:</label>
-            <input type="text" readOnly value={sale.discount}/>
-            <label>Estado:</label>
-            <input type="text" readOnly value={sale.status}/>
-            <label>Usuario:</label>
-            <input type="text" readOnly value={sale.user.name}/>
+            <input type="text" readOnly value={sale.discount}/> */}
+            
             
             <br/>
 
@@ -73,8 +198,8 @@ export const DetailSale = () => {
                         ))
                     }
                 </Table.Body>
-                {/* <Table.Footer>
-                    <Table.Row >
+                <Table.Footer>
+                    {/* <Table.Row >
                         <Table.Cell 
                             
                             textAlign="right"
@@ -82,17 +207,21 @@ export const DetailSale = () => {
                         >
                             Descuento:  <b>{sale.discount}%</b>
                         </Table.Cell>
-                    </Table.Row>
+                    </Table.Row> */}
                     <Table.Row positive>
                         <Table.Cell 
                             // positive
                             textAlign="right"
                             colSpan="5"
                         >
-                            Precio Total (IGV INCLUIDO):  <b>{sale.total_price}</b>
+                            {/* Precio Total (IGV INCLUIDO):  S/<b>{sale.total_price.toFixed(2)}</b> */}
+                            {
+                                !activeSale ? '' :
+                                'Precio Total:  S/' + activeSale.total_price.toFixed(2)
+                            }
                         </Table.Cell>
                     </Table.Row>
-                </Table.Footer> */}
+                </Table.Footer>
             </Table>
 
         </div>

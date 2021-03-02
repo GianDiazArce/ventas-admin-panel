@@ -34,6 +34,7 @@ export const types = {
 
     
     salesGetAll: '[Sales] Get All Sales',
+    saleGetById:'[Sales] Get sale By Id',
     saleActive: '[Sales] Set Sale Active',
     detailsSaleBySaleId: '[Details Sales] Get Details Sales of saleid',
     salesAddItemShopCart: '[Sales] Add item to shop cart',
@@ -43,6 +44,7 @@ export const types = {
     salesClearShopCart: '[Sales] Clean all items of table shop cart',
     saleAddNew:'[Sales] add new sale to table',
     saleDelete:'[Sales] Delete Sale to table',
+    saleChangeStatus:'[Sales] Change sale status',
 
 
 }

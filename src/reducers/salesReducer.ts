@@ -4,6 +4,7 @@ import { IProduct } from './productReducer';
 
 const initialState = {
     sales: [],
+    activePage: null,
     activeSale: null,
     detailsSales: [],
     shopCart: [],
@@ -36,6 +37,13 @@ export const salesReducer = (state = initialState, action: any) => {
                 ...state,
                 sales: [...action.payload]
             }
+
+        case types.saleGetById:
+            return {
+                ...state,
+                activeSale: action.payload
+            }
+
         case types.detailsSaleBySaleId:
             return {
                 ...state,
@@ -107,6 +115,12 @@ export const salesReducer = (state = initialState, action: any) => {
             return {
                 ...state,
                 sales: [action.payload, ...state.sales]
+            }
+
+        case types.saleChangeStatus:
+            return {
+                ...state,
+                activeSale: action.payload
             }
 
         default:

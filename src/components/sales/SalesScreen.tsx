@@ -13,6 +13,8 @@ import {
     Popup,
     Header,
     Icon,
+    Select,
+    Pagination,
 } from "semantic-ui-react";
 import {
     startGetAllSales,
@@ -32,6 +34,8 @@ import * as AiIcons from "react-icons/ai";
 
 import _ from "lodash";
 import { startDeleteSaleAndDetails } from '../../actions/sales';
+import { weekOptions } from '../../helpers/weekOptions';
+import { translateStatusSale } from '../../helpers/translateStatusSale';
 
 /* 
     Observaciones:
@@ -52,19 +56,38 @@ export const SalesScreen = () => {
     const [lugarEnvio, setLugarEnvio] = useState("");
     const [openModal, setOpenModal] = useState(false);
     const [cboProductValue, setCboProductValue] = useState({});
+    const [cboMonthValue, setCboMonthValue] = useState(moment().format('MM') );
+    const [salesFilterByMonth, setSalesFilterByMonth] = useState<ISales[]>();
+
+    //Test
+    const [salesPerPage, ] = useState(5)
+    const [currentPage, setCurrentPage] = useState(1)
+    // const [lastPage, ] = useState(Math.round(salesFilterByMonth?.length || 0 / salesPerPage));
+
     let history = useHistory();
 
     useEffect(() => {
         dispatch(startGetAllSales());
-        dispatch(startGetProducts());
+        
     }, [dispatch]);
+    useEffect(() => {
+        if(openModal){
+            dispatch(startGetProducts());
+        }
+    }, [openModal, dispatch])
+
+    useEffect(() => {
+        const salesFilter = sales.filter(
+            (sale: ISales) => {
+                return moment(sale.createdAt).format('MM') === (cboMonthValue)
+            }
+        )
+        setSalesFilterByMonth(salesFilter)
+    }, [cboMonthValue, sales])
 
     const handleDetailSale = (sale: ISales) => {
         history.push({
             pathname: `/sales/${sale._id}`,
-            state: {
-                sale,
-            },
         });
     };
 
@@ -117,10 +140,32 @@ export const SalesScreen = () => {
         dispatch(startDeleteSaleAndDetails(saleId));
         setOpenDeleteModal(false);
     }
+    const borrar = (e: any, data:any) => {
+        // console.log(data);
+        // const salesfilter = sales.filter(
+        //     (sale: ISales) => {
+        //         return moment(sale.createdAt).format('MM') === (data.value)
+        //     }
+        // )
+        // console.log(salesfilter)
+        // setSalesFilterByMonth(salesfilter)
+        setCboMonthValue(data.value);
+    }
+    const handlePageChange = (e: any, data: any) => {
+        // console.log(data);
+        setCurrentPage(data.activePage);
+    }
+
+    const indexOfLastPage = currentPage * salesPerPage;
+    const indexOfFirstPage = indexOfLastPage - salesPerPage;
+    const currentSales:any = salesFilterByMonth?.slice(indexOfFirstPage, indexOfLastPage);
+    const total = salesFilterByMonth?.length === undefined ? 0 : salesFilterByMonth?.length / salesPerPage;
+    const totalPages = Math.ceil(total);
 
     return (
         <div>
             <h2>Sales Screen</h2>
+            
             <Modal
                 as={Form}
                 onClose={() => setOpenModal(false)}
@@ -328,6 +373,19 @@ export const SalesScreen = () => {
                     </Button>
                 </ModalActions>
             </Modal>
+            
+            <div><br/>
+                {/* {
+                    // moment().format('MM')
+                } */}
+                <Select
+                    onChange={borrar}
+                    placeholder="Seleccione un mes"
+                    options={weekOptions}
+                    value={cboMonthValue}
+                />
+            </div>
+
 
             <Modal
                 basic
@@ -374,15 +432,24 @@ export const SalesScreen = () => {
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {sales.map((sale: ISales) => (
+                    {
+
+                    salesFilterByMonth === undefined || salesFilterByMonth.length === 0 ? <Table.Row><Table.Cell colSpan={6}>No hay productos</Table.Cell></Table.Row> :
+                    currentSales.map((sale: ISales) => (
                         <Table.Row key={sale._id}>
                             <Table.Cell>
                                 {moment(sale.createdAt).format("DD/MM/YYYY")} : {moment(sale.createdAt).format('hh:mm a')}
                             </Table.Cell>
-                            <Table.Cell>{sale.total_price}</Table.Cell>
+                            <Table.Cell>S/{sale.total_price.toFixed(2)}</Table.Cell>
                             <Table.Cell>{sale.place}</Table.Cell>
                             <Table.Cell>{sale.user.name}</Table.Cell>
-                            <Table.Cell>{sale.status}</Table.Cell>
+                            <Table.Cell 
+                                positive={sale.status === 'success' ? true : false} 
+                                warning={sale.status === 'pending' ? true : false}
+                                negative={sale.status === 'cancel' ? true : false}
+                            >
+                                {translateStatusSale(sale.status)}
+                            </Table.Cell>
                             <Table.Cell>
                                 <Button
                                     type="button"
@@ -392,19 +459,38 @@ export const SalesScreen = () => {
                                     Ver detalles
                                 </Button>
 
-                                <Button
-                                    type="button"
-                                    negative
-                                    onClick={() => {
-                                        handleDeleteSaleAndDetails(sale._id);
-                                    }}
-                                >
-                                    Borrar
-                                </Button>
+                                {
+                                    sale.status === 'cancel' ? 
+                                    (
+                                        <Button
+                                            type="button"
+                                            negative
+                                            onClick={() => {
+                                                handleDeleteSaleAndDetails(sale._id,);
+                                            }}
+                                        >
+                                            Borrar
+                                        </Button>
+                                    )
+                                    :
+                                    null
+                                }
                             </Table.Cell>
                         </Table.Row>
-                    ))}
+                    ))
+                    }
                 </Table.Body>
+                <Table.Footer  >
+                    <Table.Row  >
+                        <Table.HeaderCell textAlign="center" colSpan="6" >
+                            <Pagination
+                                activePage={currentPage}
+                                onPageChange={handlePageChange}
+                                totalPages={totalPages}
+                            />
+                        </Table.HeaderCell>
+                    </Table.Row>
+                </Table.Footer>
             </Table>
         </div>
     );

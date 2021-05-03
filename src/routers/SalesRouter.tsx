@@ -1,5 +1,5 @@
 import React from 'react'
-import { Switch, Route, Redirect, } from 'react-router-dom';
+import { Switch, Route, Redirect, useLocation, } from 'react-router-dom';
 import { ErrorScreen } from '../components/error/ErrorScreen'
 import { HomeScreen } from '../components/home/HomeScreen';
 // import { Sidebar } from '../components/ui/Sidebar';
@@ -10,14 +10,18 @@ import { SupplierScreen } from '../components/supplier/SupplierScreen';
 import { SalesScreen } from '../components/sales/SalesScreen';
 import { DetailSale } from '../components/sales/DetailSale';
 
+interface Props {
+    isAuthenticated?: boolean
+}
 
+export const SalesRouter = ({isAuthenticated}:Props) => {
 
-export const SalesRouter = ({isAuthenticated}:any) => {
-
+    const location = useLocation();
     // Condicion para comprobar isAuthenticated
     if(isAuthenticated === false){
-        return <Redirect to="/login" />
+        return <Redirect to="/" />
     }
+    console.log(location.pathname);
     
 
     return (

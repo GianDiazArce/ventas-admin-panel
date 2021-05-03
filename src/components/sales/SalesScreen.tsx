@@ -60,7 +60,8 @@ export const SalesScreen = () => {
     const [salesFilterByMonth, setSalesFilterByMonth] = useState<ISales[]>();
 
     //Test
-    const [salesPerPage, ] = useState(5)
+    const [salesPerPage, ] = useState(5);
+    // const [totalPages, currentSales, handlePageChange, currentPage] = PaginationCalculate(salesFilterByMonth, salesPerPage);
     const [currentPage, setCurrentPage] = useState(1)
     // const [lastPage, ] = useState(Math.round(salesFilterByMonth?.length || 0 / salesPerPage));
 
@@ -152,7 +153,6 @@ export const SalesScreen = () => {
         setCboMonthValue(data.value);
     }
     const handlePageChange = (e: any, data: any) => {
-        // console.log(data);
         setCurrentPage(data.activePage);
     }
 

@@ -21,6 +21,7 @@ export const AppRouter = () => {
     useEffect(() => {
         dispatch( startChecking() )
     }, [dispatch])
+    console.log(!!uid)
 
     if( checking ) {
         return (<h5>Espere...</h5>)
@@ -42,11 +43,12 @@ export const AppRouter = () => {
                     /> */}
 
                     {
-                        !!uid === false 
+                        // !!uid === false 
+                        !uid 
                         ?
                         <Route 
                         exact
-                            path = "/login"
+                            path = "/home"
                             component={ LoginScreen }
                         />
                         :
@@ -56,10 +58,10 @@ export const AppRouter = () => {
                         />
                     }
 
-                    {
-                        !!uid === false ? <Redirect to="/login" /> : <Redirect to="/home" />
-                    }
-                    <Redirect to="/" />
+                    {/* {
+                        !isLogged ? <Redirect to="/home" /> : <Redirect to="/home" />
+                    } */}
+                    <Redirect to="/home" />
                     
                 </Switch>
             </div>

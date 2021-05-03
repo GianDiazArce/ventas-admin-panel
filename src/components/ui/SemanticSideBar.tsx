@@ -42,7 +42,7 @@ export const SemanticSideBar = ({children}: any) => {
    const { name } = useSelector((state: RootStateOrAny) => state.auth)
    const dispatch = useDispatch();
 
-   const showSidebar = (e:any) => {
+   const showSidebar = () => {
         // if (!e.target.classList.contains("NoClose")) {
             setVisible(false);
         // }

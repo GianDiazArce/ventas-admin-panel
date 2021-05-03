@@ -1,7 +1,7 @@
 import { fetchSinToken, fetchConToken } from '../helpers/fetchApi';
 import { types } from '../types/types';
 import { IUser } from '../reducers/authReducer';
-export{}
+// export{}
 
 export const startLogin = (email: string, password: string) => {
     return async(dispatch:any) => {

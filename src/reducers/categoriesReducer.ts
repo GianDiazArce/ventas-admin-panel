@@ -16,16 +16,8 @@ export interface ICategory {
     updatedAt?: Date;
 }
 
-// export interface ICategoriesReducerState {
-//     tablesState: {
-//         column: any;
-//         direction: string
-//     },
-//     categories: [];
-// }
 
 export const categorieReducer = ( state = initCategoriesState, action: any ) => {
-    // console.log(action);
     switch (action.type) {
         case types.catGetAll:
             return {

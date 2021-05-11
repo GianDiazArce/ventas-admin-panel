@@ -45,14 +45,12 @@ export const SupplierScreen = () => {
     };
     const handleUpdateSubmit = (e: React.FormEvent<HTMLInputElement>) => {
         e.preventDefault();
-        // console.log(formValues);
         dispatch(startUpdateSupplier(formValues));
         setOpenModal(false);
         setIsEdit(false);
         reset();
     };
     const handleEditSupplier = (supplier: ISupplier) => {
-        // console.log(supplier);
         newFormValue({
             _id: supplier._id,
             supplierName: supplier.name,
@@ -69,8 +67,6 @@ export const SupplierScreen = () => {
         setOpenDeleteModel(true);
     };
     const deleteSupplier = () => {
-        // startDelete
-        // console.log(formValues)
         dispatch(startDeleteSupplier(formValues));
         setOpenDeleteModel(false);
         reset();

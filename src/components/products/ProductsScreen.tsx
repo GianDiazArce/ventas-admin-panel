@@ -45,16 +45,10 @@ export const ProductsScreen = () => {
     const [openDeleteModel, setOpenDeleteModel] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
 
-    const [formValues, handleInputChange, reset, newFormValues] = useForm(
-        initProductState
-    );
-    const {
-        productName,
-        total_price,
-        stock,
-        category,
-        supplier,
-    }: any = formValues;
+    const [formValues, handleInputChange, reset, newFormValues] =
+        useForm(initProductState);
+    const { productName, total_price, stock, category, supplier }: any =
+        formValues;
     const [precioCosto, setprecioCosto] = useState(0);
 
     useEffect(() => {
@@ -68,10 +62,7 @@ export const ProductsScreen = () => {
     }, [total_price, stock]);
 
     const handleSubmit = (e: React.FormEvent<HTMLInputElement>) => {
-        // console.log(formValues);
-        // console.log(precioCosto)
         if (isEdit) {
-            // console.log(formValues);
             dispatch(startUpdateProduct(formValues, precioCosto));
             setOpenModal(false);
             reset();
@@ -83,7 +74,6 @@ export const ProductsScreen = () => {
     };
 
     const handleSelectCategoryChange = (e: any, data: any) => {
-        // console.log(data.value);
         newFormValues({
             ...formValues,
             category: data.value,
@@ -104,13 +94,11 @@ export const ProductsScreen = () => {
         newFormValues({
             _id: product._id,
             productName: product.name,
-            // price_cost: product.price_cost,
             stock: product.stock,
             category: product.category._id,
             supplier: product.supplier._id,
             total_price: price_total,
         });
-        // console.log(product);
         setOpenModal(true);
     };
 
@@ -317,7 +305,7 @@ export const ProductsScreen = () => {
             />     */}
             <Table sortable celled fixed className="table-width-auto">
                 <Table.Header>
-                    <Table.Row >
+                    <Table.Row>
                         <Table.HeaderCell>Nombre</Table.HeaderCell>
 
                         <Table.HeaderCell>Stock</Table.HeaderCell>

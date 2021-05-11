@@ -208,7 +208,6 @@ const deleteSaleById = (id: string) => ({
 export const startSaleChangeStatus = (status: string, saleId: string) => {
     return async (dispatch:any) => {
         const resp = await fetchConToken(`sales/${saleId}`, {status}, 'PUT');
-        // console.log(resp)
         if(!resp){
             Swal.fire('Error', 'Hubo un error con la informacion del servidor, por favor contacte con un administrador', 'error');
         }

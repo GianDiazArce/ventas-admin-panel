@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 
 
 export const startGetAllSuppliers = () => {
-    return async(dispatch:any) => {
+    return async (dispatch: any) => {
         const resp = await fetchSinToken('suppliers');
         const suppliers = await resp.suppliers;
         dispatch(getSuppliers(suppliers));
@@ -19,13 +19,12 @@ const getSuppliers = (suppliers: ISupplier) => ({
 
 export const startNewSupplier = (supplier: ISupplier) => {
 
-    return async(dispatch:any) => {
-        const resp = await fetchConToken('suppliers/new-supplier',supplier, 'POST');
-        // console.log(supplier)
-        if(!resp){
+    return async (dispatch: any) => {
+        const resp = await fetchConToken('suppliers/new-supplier', supplier, 'POST');
+        if (!resp) {
             Swal.fire('Error', 'Hubo un error con la informacion del servidor, por favor contacte con un administrador', 'error');
         }
-        if(resp.ok){
+        if (resp.ok) {
             Swal.fire('Success', 'El proveedor fue creado correctamente', 'success');
             supplier._id = resp.supplier._id;
             supplier.name = resp.supplier.name;
@@ -42,16 +41,15 @@ const saveNewSupplier = (supplier: ISupplier) => ({
 })
 
 export const startUpdateSupplier = (supplier: ISupplier) => {
-    return async( dispatch:any ) => {
+    return async (dispatch: any) => {
 
         const resp = await fetchConToken(`suppliers/${supplier._id}`, supplier, 'PUT');
-        if( !resp ){
-            Swal.fire('Error', 'Hubo un error con la informacion del servidor, por favor contacte con un administrador', 'error'); 
+        if (!resp) {
+            Swal.fire('Error', 'Hubo un error con la informacion del servidor, por favor contacte con un administrador', 'error');
         }
-        if(resp.ok){
+        if (resp.ok) {
             Swal.fire(`Categoria Actualizada`, `La categoria fue actualizada correctamente`, 'success');
-            dispatch( updateSupplier(resp.supplier) );
-            // console.log(resp);
+            dispatch(updateSupplier(resp.supplier));
         }
 
     }
@@ -62,15 +60,15 @@ const updateSupplier = (supplier: ISupplier) => ({
     payload: supplier
 })
 
-export const startDeleteSupplier = ( supplier: ISupplier ) => {
-    return async( dispatch: any ) => {
+export const startDeleteSupplier = (supplier: ISupplier) => {
+    return async (dispatch: any) => {
         const resp = await fetchConToken(`suppliers/${supplier._id}`, supplier, 'DELETE');
         let idSupplier = supplier._id;
 
-        if(!resp) {
+        if (!resp) {
             Swal.fire('Error', 'Hubo un error con la informacion del servidor, por favor contacte con un administrador', 'error');
         }
-        if(resp.ok){
+        if (resp.ok) {
             Swal.fire('Categoria Eliminada', 'La categoria fue eliminada correctamente', 'success');
             dispatch(deleteSupplier(idSupplier));
         }

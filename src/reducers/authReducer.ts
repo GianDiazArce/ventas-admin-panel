@@ -9,10 +9,9 @@ export interface IUser {
     role?: string;
 }
 
-export const authReducer = (state = initialState, action :any) => {
-    // console.log(action)
+export const authReducer = (state = initialState, action: any) => {
     switch (action.type) {
-        
+
         case types.authLogin:
             return {
                 ...state,

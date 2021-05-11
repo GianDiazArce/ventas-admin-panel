@@ -97,7 +97,7 @@ export const SalesScreen = () => {
         const totalPriceShopCart = _.sum(
             _.map(shopCart, (p) => p.total_price)
         ).toFixed(2);
-        dispatch(startNewSale(shopCart, totalPriceShopCart, uid, lugarEnvio));
+        dispatch(startNewSale(shopCart, totalPriceShopCart, uid, lugarEnvio, calculateGained()));
         setOpenModal(false);
     };
     const handleProductChange = (
@@ -154,6 +154,14 @@ export const SalesScreen = () => {
     }
     const handlePageChange = (e: any, data: any) => {
         setCurrentPage(data.activePage);
+    }
+    const calculateGained = () => {
+        let gain: number = 0; 
+        for (let i = 0; i < shopCart.length; i++) {
+            gain = gain + (shopCart[i].quantity * shopCart[i].price_cost);
+            
+        }
+        return gain;
     }
 
     const indexOfLastPage = currentPage * salesPerPage;

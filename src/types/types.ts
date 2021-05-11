@@ -45,6 +45,7 @@ export const types = {
     saleAddNew:'[Sales] add new sale to table',
     saleDelete:'[Sales] Delete Sale to table',
     saleChangeStatus:'[Sales] Change sale status',
+    saleFilterByMonthAndYear:'[Sales] Filter Sales by month and year',
 
 
 }

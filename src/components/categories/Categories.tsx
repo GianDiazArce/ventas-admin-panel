@@ -65,8 +65,6 @@ export const Categories = () => {
         setOpenDeleteModel(true)
     }
     const deleteCategory = () => {
-        // startDelete
-        console.log(formValues)
         dispatch(startDeleteCategory(formValues));
         setOpenDeleteModel(false);
         reset();

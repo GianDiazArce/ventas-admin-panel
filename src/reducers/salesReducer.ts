@@ -1,21 +1,18 @@
 import { types } from '../types/types';
 import { IUser } from './authReducer';
 import { IProduct } from './productReducer';
+import _ from "lodash";
+import moment from 'moment';
 
-const initialState = {
-    sales: [],
-    activePage: null,
-    activeSale: null,
-    detailsSales: [],
-    shopCart: [],
-}
+
 export interface ISales {
     _id: string,
     discount: number,
     status: string,
     total_price: number,
     place: string,
-    user: IUser
+    user: IUser,
+    gained?: number ,
     createdAt?: Date,
     updatedAt?: Date,
 }
@@ -27,6 +24,26 @@ export interface IDetailSales {
     price_sale: number,
     createdAt?: Date,
     updatedAt?: Date,
+}
+
+interface ISaleState {
+    sales: [],
+    activePage: any,
+    activeSale: any,
+    detailsSales: [],
+    shopCart: [],
+    salesFiltered: [],
+    totalGained: number,
+}
+
+const initialState: ISaleState = {
+    sales: [],
+    activePage: null,
+    activeSale: null,
+    detailsSales: [],
+    shopCart: [],
+    salesFiltered: [],
+    totalGained: 0,
 }
 
 export const salesReducer = (state = initialState, action: any) => {
@@ -42,6 +59,16 @@ export const salesReducer = (state = initialState, action: any) => {
             return {
                 ...state,
                 activeSale: action.payload
+            }
+
+        case types.saleFilterByMonthAndYear:
+            const salesTemp: ISales[] = state.sales;
+            const salesByYear: ISales[] =  salesTemp.filter((sale: ISales) => moment(sale.createdAt).format('YYYY') === action.payload.year )
+            const salesFiltered: ISales[] = salesByYear.filter((sale) => moment(sale.createdAt).format('MM') === action.payload.month)
+            return {
+                ...state,
+                totalGained: _.sum(salesFiltered.map((sale:ISales)=> sale.total_price)),
+                salesFiltered,
             }
 
         case types.detailsSaleBySaleId:

@@ -21,12 +21,10 @@ export const AppRouter = () => {
     useEffect(() => {
         dispatch( startChecking() )
     }, [dispatch])
-    console.log(!!uid)
 
     if( checking ) {
         return (<h5>Espere...</h5>)
     }
-// console.log(!!!uid);
     return (
         <Router>
             <div style={{backgroundColor: '#ccc'}}>

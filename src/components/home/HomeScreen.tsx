@@ -1,58 +1,64 @@
-import { Select } from "semantic-ui-react"
+import { DropdownProps, Select, Statistic } from "semantic-ui-react"
 import { weekOptions } from '../../helpers/weekOptions';
-import { startGetAllSales } from '../../actions/sales';
+import { getSalesByMonthAndYear, startGetAllSales } from '../../actions/sales';
 import { useDispatch, useSelector, RootStateOrAny } from 'react-redux';
-import { useEffect, useState } from 'react';
-import { ISales } from '../../reducers/salesReducer';
-import moment from 'moment';
-import _ from "lodash";
+import { useEffect, useRef, useState } from 'react';
+import { yearOption } from '../../helpers/yearOptions';
+import _ from 'lodash';
 
 export const HomeScreen = () => {
 
     const dispatch = useDispatch();
-    const { sales } = useSelector((state:RootStateOrAny) => state.sal)
-    const [salesState, setSalesState] = useState([]);
+    const { totalGained, salesFiltered } = useSelector((state:RootStateOrAny) => state.sal)
+    const [monthActual, setMonthActual] = useState('');
+    const yearCurrent = useRef('')
 
+    
     useEffect(() => {
         dispatch(startGetAllSales());
     }, [dispatch]);
-
     const handleSelectWeekChange = (e: any, data:any) => {
-        // console.log(data);
-        const salesfilter = sales.filter(
-            (sale: ISales) => {
-                return moment(sale.createdAt).format('MM') === (data.value)
-            }
-        )
-        setSalesState(salesfilter);
+        
+        (yearCurrent.current) && dispatch(getSalesByMonthAndYear(data.value, yearCurrent.current))
+        console.log(yearCurrent.current)
+        setMonthActual(data.value)
+        // setSalesState(salesfilter);
     }
-    const calculateGainedTotal = () => {
-        return _.sum(salesState.map((sale:ISales)=> sale.total_price))
+    const handleYearChange = (event: React.SyntheticEvent<HTMLElement, Event>, data: DropdownProps | any) => {
+        yearCurrent.current = data.value;
+        (monthActual) && dispatch(getSalesByMonthAndYear(monthActual, yearCurrent.current))
+
     }
 
     return (
-        <div>
+        <div style={{marginLeft: 20, marginTop: 30}}>
+            <Select
+                onChange={handleYearChange}
+                placeholder="Seleccione el año"
+                options={yearOption}
+                className="mr-3"
+            />
             <Select
                 onChange={handleSelectWeekChange}
                 placeholder="Seleccione un mes"
                 options={weekOptions}
             />
-            <p> Importe del mes: S/
-                {
-                    calculateGainedTotal()
-                }
-            </p>
-            {/* <h2>Aqui iran las graficas de ganancias por dia y mas cosas</h2> */}
-            {/* <p>
-                Insertar nuevo valor en el total que diga la gananccia total de los productos que se vendieron considerando el precio costo venta y cantidad
-            </p> */}
-            <p>
-                Poner filtros por dia usando las ventas para calcular las ganancias y un select para seleccionar los dias 
-                o un check box para seleccionar por dia semana mes o un pickdate
-                Poner Detalles en producto y proveedores categorias.
-                Buscar libreria para graficos.
-                Reportes a excell
-            </p>
+            <br />
+            {
+                (monthActual && yearCurrent.current) && (
+                    <>
+                        <Statistic size="mini"  >
+                            <Statistic.Label>Importe {monthActual}/{yearCurrent.current}</Statistic.Label>
+                            <Statistic.Value>S/{ totalGained.toFixed(2) }</Statistic.Value>
+                        </Statistic>
+                        <Statistic size="mini"  >
+                            <Statistic.Label>Importe {monthActual}/{yearCurrent.current}</Statistic.Label>
+                            <Statistic.Value>S/{ _.sum(_.map(salesFiltered, (p:any)=> p.gained)).toFixed(2) }</Statistic.Value>
+                        </Statistic>
+                    </>
+                )
+            }
         </div>
     )
 }
+

@@ -1,8 +1,6 @@
-import React from 'react'
-import { Switch, Route, Redirect, useLocation, } from 'react-router-dom';
+import { Switch, Route, Redirect, } from 'react-router-dom';
 import { ErrorScreen } from '../components/error/ErrorScreen'
 import { HomeScreen } from '../components/home/HomeScreen';
-// import { Sidebar } from '../components/ui/Sidebar';
 import { Categories } from '../components/categories/Categories';
 import { SemanticSideBar } from '../components/ui/SemanticSideBar';
 import { ProductsScreen } from '../components/products/ProductsScreen';
@@ -16,12 +14,10 @@ interface Props {
 
 export const SalesRouter = ({isAuthenticated}:Props) => {
 
-    const location = useLocation();
     // Condicion para comprobar isAuthenticated
     if(isAuthenticated === false){
         return <Redirect to="/" />
     }
-    console.log(location.pathname);
     
 
     return (

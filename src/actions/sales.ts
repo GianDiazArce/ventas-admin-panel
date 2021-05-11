@@ -2,12 +2,10 @@ import { fetchConToken, fetchSinToken } from '../helpers/fetchApi';
 import Swal from 'sweetalert2';
 import { ISales, IDetailSales } from '../reducers/salesReducer';
 import { types } from '../types/types';
-// import { IProduct } from '../reducers/productReducer';
 
 export const startGetAllSales = () => {
     return async(dispatch: any) => {
         const resp = await fetchConToken('sales', null, 'GET');
-        // console.log(resp);
         if(!resp){
             Swal.fire('Error', 'Hubo un error con la informacion del servidor, por favor contacte con un administrador', 'error');
         }
@@ -17,9 +15,22 @@ export const startGetAllSales = () => {
     }
 }
 
-const getAllSales = (sales: ISales) => ({
+const getAllSales = (sales: ISales[]) => ({
     type: types.salesGetAll,
     payload: sales,
+})
+
+export const getSalesByMonthAndYear = (month: string, year: string) => {
+    return async(dispatch: any) => {
+        dispatch(getSalesFilteredByMonthAndYear({
+            year,
+            month,
+        }))
+    }
+}
+const getSalesFilteredByMonthAndYear = (data: any) => ({
+    type: types.saleFilterByMonthAndYear,
+    payload: data,
 })
 
 export const startGetActiveSale = (saleId: string) => {
@@ -64,7 +75,6 @@ export const startAddItemShopCart = (product: any) => {
         product.quantity = 0;
         product.price_sale = 0;
         product.total_price = 0;
-        // product.
         dispatch(addItemShopCart(product))
     }
 }
@@ -116,15 +126,17 @@ interface IDetailSaleFetch{
     _id: string,
     quantity: number,
     price_sale: number,
-   
+    price_cost: number,
 }
 
-export const startNewSale = (shopCart: IDetailSaleFetch[], total: any, userId: string, place: string) => {
+export const startNewSale = (shopCart: IDetailSaleFetch[], total: any, userId: string, place: string, totalGain: number) => {
     return async (dispatch:any) => {
+        const gained = total - totalGain
         let paramsSales = {
             total_price: total,
             place: place==='' ? 'Local Comas': place,
             user: userId,
+            gained,
         }
         // if place empty = local comas
         const saleResp = await fetchConToken('sales/new-sale', paramsSales, 'POST');
@@ -157,7 +169,6 @@ export const startNewSale = (shopCart: IDetailSaleFetch[], total: any, userId: s
                 }
             }
             dispatch(salesClearShopCart());
-            // console.log(saleResp);
             dispatch(newSale(saleResp.sale))
             Swal.fire('Success', 'La venta fue creada', 'success');
         }

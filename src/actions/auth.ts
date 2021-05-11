@@ -1,31 +1,29 @@
 import { fetchSinToken, fetchConToken } from '../helpers/fetchApi';
 import { types } from '../types/types';
 import { IUser } from '../reducers/authReducer';
-// export{}
 
 export const startLogin = (email: string, password: string) => {
-    return async(dispatch:any) => {
-        const body = await fetchSinToken('user/login', {email, password}, 'POST');
-        // console.log(body)
-        if(!body){
-            dispatch( checkingFinish() );
+    return async (dispatch: any) => {
+        const body = await fetchSinToken('user/login', { email, password }, 'POST');
+        if (!body) {
+            dispatch(checkingFinish());
             return;
         }
-        if(body.ok){
-            
-            localStorage.setItem('token', body.token );
-            localStorage.setItem('token-init-date', (new Date().getTime()).toString() );
+        if (body.ok) {
+
+            localStorage.setItem('token', body.token);
+            localStorage.setItem('token-init-date', (new Date().getTime()).toString());
             dispatch(login({
                 uid: body.uid,
                 name: body.name,
             }))
         } else {
-            dispatch( checkingFinish() );
+            dispatch(checkingFinish());
         }
     }
 }
 
-const login = ( user: IUser ) => ({
+const login = (user: IUser) => ({
     type: types.authLogin,
     payload: user
 })
@@ -34,32 +32,30 @@ const checkingFinish = () => ({
 })
 
 export const startChecking = () => {
-    return async( dispatch:any ) => {
-        const body = await fetchConToken( 'user/renew' );
-        // console.log(body);
-        if(body.ok) {
-            localStorage.setItem('token', body.token );
-            localStorage.setItem('token-init-date', new Date().getTime().toString() );
+    return async (dispatch: any) => {
+        const body = await fetchConToken('user/renew');
+        if (body.ok) {
+            localStorage.setItem('token', body.token);
+            localStorage.setItem('token-init-date', new Date().getTime().toString());
 
-            dispatch( login({
+            dispatch(login({
                 uid: body.uid,
                 name: body.name
-            }) );
+            }));
         } else {
-            dispatch( checkingFinish() );
-            // dispatch(dispatch(startLogout()))
+            dispatch(checkingFinish());
         }
     }
 }
 
 
 export const startLogout = () => {
-    return ( dispatch:any ) => {
+    return (dispatch: any) => {
 
         localStorage.removeItem('token');
         localStorage.removeItem('token-init-date');
 
-        dispatch( logout() );
+        dispatch(logout());
 
     }
 }
